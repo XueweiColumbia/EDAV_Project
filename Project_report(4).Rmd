@@ -1,0 +1,428 @@
+---
+title: "Influencing Factors of Air Ticket Price"
+author: "Jiaying Zhang(jz2897); Yao Li(yl3765); Xuewei Du(xd2199); Yuanhao Lu(yl3786)"
+date: "APR 26, 2018"
+output: html_document
+fontsize: 15pt
+geometry: margin=2in 
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = FALSE,
+                      message = FALSE, 
+                      cache = TRUE)
+```
+
+---
+
+```{r}
+library(DAAG)
+library(Sleuth3)
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(grid)
+library(extracat)
+library(MASS)
+library(scales)
+require(plyr)
+library(viridis)
+library(vcd)
+gp <- get.gpar()
+```
+
+## Introduction
+
+Our main goal of this project is to analyze potential influencing factors of air ticket price for domestic air routes in United States. This topic is closely related to our lives. As communication and transportation growing fastly these days, air ticket price directly affects our life quality, either in business-related or casual trips. Getting to know more about what factors determine cost of air ticket will make the trip more flexible and controllable. Companies can save budget on business-related trips so that they can have more good use of their budget. For leisure trips, people can choose destinations with cheaper air tickets when they have multiple choices, or different time of traveling. The factors we analyzed were states’ income, passengers’ flow volume, seasonal effect, commercial metropolitan area, and low-cost airlines.
+
+
+Xuewei Du is our group leader. Except for organizing team’s rate of progress, Xuewei took charge of part of interactive component and the analysis of low-cost airlines. Yuanhao Lu was responsible for state income analysis and part of interactive component. Baebae Zhang analyzed passengers’ flow effect, seasonal effect, and final report write-up. Yao Li was in charge of analyzing effect of commercial metropolitan area, missing value detection, and final report write-up.
+
+## Description of Data
+
+We first thought about crawling our own data from websites such as Expedia.com. Because data would be raw, original, and flexible, also it would directly give us what we wanted. However, since we would like to investigate the air tickets fare over a sufficient period of time and by crawling we might only access data for at most 2 month. So we did not take this approach. We then explored some government open datasets to look for some original datasets published by the government. 
+
+The first website we found was Bureau of Transportation Statistics (https://www.bts.gov/topics/airlines-and-airports). Although this website was official and reliable, it only allowed us to download three airports’ datasets at a time. But there were too many airports’ data, so we gave up on this website. We then turned to US Government’s open data(https://catalog.data.gov/dataset). This website allowed us to explore many datasets in the aviation industry, both federal and state level. It was this website that made us aware of the “Domestic Airline Consumer Airfare Report”. This report was released by US Department of Transportation starting from the third quarter of 1996 in response to consumer’s inquiries about national air prices. This report was also directly available on Transportation.gov website (https://www.transportation.gov/policy/aviation-policy/domestic-airline-consumer-airfare-report). We obtained the data directly from Department of Transportation to ensure credibility. This dataset was relatively comprehensive with very low percentage of missing values and could totally serve our goal after simply cleaning. 
+After downloading the Domestic Airline Consumer Airfare Report, we had a preliminary observation of the whole dataset. Totally, there were 87021 airline records with 15 features for each airline, including year, quarter, departure city, arrival city, distance between two cities, passenger flow for the airline, average fare, largest carrier, the market share for the largest carrier, fare with the largest carrier, lowest fare, the carrier with the lowest fare, the market share of low-fare carrier, the coordinate of departure city and the coordinate of arrival city. 
+
+Then, we found that there were some noteworthy features. Firstly, the dataset offered us the coordinate of cities, which brought us the idea that we could use the given coordinates to locate a city when drawing maps for the interactive component part. This provided us the convenience. Secondly, information of carriers with lowest fares was shown in the dataset. Thus, we could do some research like the influence of low cost airline fare to the average fare for an airline. Thirdly, after knowing the passenger flow for each airline, we could explore the relationship between passenger flow and fare.
+
+Then we used Trifacta application to wrangle dataset. Firstly, we deleted the dollar sign before fare price, and changed the fare price type from characteristic to numerical. Secondly, we split the city and state into two columns which are combined as one column before. Thirdly, we extracted longitude and latitude for each city.
+
+
+After wranglering the origin dataset, we had 87021 rows (airlines) and 19 features. Year was ranging from 1996 to 2017, and there were four quarters (1,2,3,4) for each year. For each airline, we had the city and state for both departure and arrival with cities’ latitude and longitude, distance in mile between two cities and the passenger flow in this airline, average flight price between the departure and arrival cities. Besides, the dataset showed us the largest carrier with its market share and fare for each airline, and cheapest average price for this airline with carrier name and market share.
+
+```{r}
+table_after_wranglering <-read.csv("table_cleaned.csv") 
+summary(table_after_wranglering)
+```
+
+In the main analysis part, three of us used additional dataset to support our analysis. First in the analysis of air ticket price between commercial metropolitan areas, we used the table of Gross Domestic Product by Metropolitan Area in 2017 from Bureau of Economics to get the rank of GDP ran for each commercial metropolitan areas. The table was published from the authority and covered all metropolitan areas in U.S, thus the data quality was guaranteed. Secondly, as you will learn in the main analysis part of our report, one of the potential influencing factors for air fare was competition from low-cost carriers. In pursuit for a standard definition of low-cost carriers, we used International Civil Aviation Organization(ICAO)’s List of Low-Cost-Carriers(LCCs). Details about this list will be provided in the main analysis section. Lastly, to explore the relationship between the state income and ticket fare for flight from the state,  we used the income by states data from U.S. Census Bureau, American Community Survey from 2006 to 2016, which showed us the income and margin of error for each state. We downloaded the data from (https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk) and imported it into our local database. 
+
+
+
+## Analysis of Data Quality
+
+Domestic Airline Consumer Airfare dataset was downloaded from U.S Department of Transportation. Since this was a U.S government official website for transportation data, we believed the source of data was credible and authoritative.
+
+More than 99% rows do not have any missing value in the Domestic Airline Consumer Airfare dataset. There are three missing pattern in the dataset. The first missing pattern is missing departure and arrival cities latitude and longitude, and the total count for this missing pattern is 1000 with the proportion less than 1% to the whole dataset. The second missing pattern is even more tiny with only 57 missing value, which only miss one cities’ latitude and longitude. The third missing pattern is missing three airlines’ lowest fare with their carriers and the carriers’ market share for those airline. 
+
+However, when working on the interactive component part, we used the coordinates of cities to draw a map. This time, we found that the coordinates are not correctly labeled. For example, the coordinates for Phoenix, Arizona are labeled for Phoenix, Louisiana. We were not sure about how many mislabeled coordinates in the dataset. Since we used only a few coordinates for the interactive part, those cities coordinates were corrected by us.
+
+In conclusion, Domestic Airline Consumer Airfare dataset is in high quality with credible source and negligible missing data, with low percentage of mislabeled coordinates.
+
+```{r}
+table_after_wranglering <-read.csv("table_cleaned.csv") 
+visna(table_after_wranglering, sort = "b")
+```
+
+
+## Exploratory Data Analysis
+
+
+We first did data preprocessing, as described in previous part “description of data”. With the preprocessed data, we considered some potential influencing factors of air fare, including origin and destination cities’ GDP level, seasonality, passenger flow volume, competition from low-cost airlines, state income and more. We then investigated each of the potential influencing factors.
+
+
+**Commercial metropolitan area**
+
+Firstly we’ll discuss air ticket price between cities with high GDP level / commercial metropolitan area. 
+The plots show how metropolitan area GDP level might influence the flight fare. From the plots we can conclude that the flight fares are more likely to be extremely low or extremely high between two cities with high GDP, and fares majorly concentrate in the middle for flights between two low GDP income cities.
+
+The procedure to get the conclusion can be separated into three parts. Firstly, based on the metropolitan area’s GDP in 2017, we classified the 10 highest GDP cities and 10 lowest GDP cities in rank 30-40. The flights between two high GDP cities were coded as “high” and flights between two low GDP cities were coded as “low”. For both high and low GDP cities, we calculated their average flight fares grouped by quarters in year 2017. 
+
+Then, we used box plot to show the distribution of flight fares in high and low GDP cities.From the box plot, we can see that the average fares are similar between high and low GDP cities. However, for airline between high GDP cities, flight fares are more dispersive with more variance; for airline between low GDP cities, flight fares are more likely to be around the average fare level. 
+
+```{r,fig.height= 10, fig.width= 10}
+data <- read.csv('top_mid_2017.csv')
+ggplot(data, aes(cate, fare)) + 
+  geom_boxplot(color = "black") + 
+  geom_text(aes(x = cate , y = fare, label = paste(city), 
+                color = city_1),
+            size = 5) +
+  guides(color = FALSE)  +
+  theme_grey(20) +
+  ggtitle("Fare v.s.Metropolitan area GDP level ") + 
+  xlab("Airline between Metropolitan area") +
+  ylab("Fare ($)")
+                 
+```
+
+
+Besides, we classified flight fare into 4 levels. “1” represents flight fares from minimum fare to the first quarter; “2” represents flight fares from first quarter to medium; “3” represents flight fares from medium to third quarter; “4” represents flight fares from third quarter to the maximum. We then drew a mosaic plot using GDP level as independent variable and flight fare as dependent variable.
+
+```{r}      
+data <- read.csv('top_mid_2017.csv')
+data["fare_level"] <- NA
+data$fare_level[data$fare>=133 & data$fare<174]<-1
+data$fare_level[data$fare>=174 & data$fare<205]<-2
+data$fare_level[data$fare>=205 & data$fare<253]<-3
+data$fare_level[data$fare>=253 & data$fare<375]<-4
+```
+
+```{r}
+color <- c("#FFCCCC", "#FF6666", "#FF0000", "#990000")
+vcd::mosaic(fare_level ~ cate,data,
+            gp = gpar(fill = color), main = "           Fare level v.s.Metropolitan area GDP level " )
+
+```
+
+
+From the mosaic plot, the proportion for fare_level 1 and 4 is bigger than 2 and 3 in the High category. This means flight fares between two high GDP cities are more likely to be very low or very high. There are two reasons that might cause this situation. Firstly, there are more passengers and more air lines between two high GDP cities. The competition between different airline companies will be more intense, so they might lower the ticket price to gain bigger market share. That might be the reason that there are more cheap flights between two high GDP cities. Secondly, it is possible that there are more expensive business-class tickets between two high GDP cities, which might lead to higher proportion in expensive fare between high GDP cities.
+
+**Seasonal effect**
+
+
+Secondly we’ll discuss whether seasonal effect is a factor relating to air ticket price. 
+
+
+Since we need to take US currency inflation from 1996 to 2017 into consideration, we have to map each quarter’s ticket fare from its original value to its equivalent value in year 2017. Then we calculated the average price of each air line in each quarter in 1000 air lines we had in the dataset, and drew the time series plot. We changed “quarter” variable type from “character” to “number”. For example in the plot, 1996.00 means first quarter of year 1996; 1996.25 means second quarter of year 1996; 1996.50 means third quarter of year 1996; 1996.75 means fourth quarter of year 1996.
+
+
+```{r}
+df = read.csv('table_baebae.csv')
+df$season = paste(df$Year, df$quarter)
+
+# Considering US Dollar inflation rate from 1996 to 2017
+inflation_df = data.frame(Year = seq(1996, 2017, 1), adjust_rate = c(1.56, 1.53, 1.5, 1.47, 1.42, 1.38, 1.36, 1.33, 1.3, 1.25, 1.21, 1.18, 1.14, 1.14, 1.12, 1.09, 1.07, 1.05, 1.03, 1.03, 1.02, 1))
+
+find_inflation = function(year, inflation_df = inflation_df){
+  return(inflation_df$adjust_rate[which(inflation_df$Year == year)])
+}
+
+inflation = apply(df, MARGIN = 1, function(x){find_inflation(x[which(names(df) == "Year")], inflation_df)})
+adjusted_fare = inflation * df$fare
+
+df$fare = adjusted_fare
+
+
+
+# Change 'Seasons' variable type from 'character' to 'number'. 
+#For example for year 1996, 1996.00 means first quarter of year 1996; 1996.25 means second quarter of year 1996; 1996.50 means third quarter of year 1996; 1996.75 means fourth quarter of year 1996.
+df$fare.sum = df$passengers * df$fare
+df$Seasons = df$Year + 0.25*df$quarter - 0.25
+```
+
+```{r}
+# Calculate fare average of each quarter
+quarter.fare.sum = aggregate(fare.sum ~ Seasons, df, FUN = sum)
+quarter.passengers.sum = aggregate(passengers ~ Seasons, df, FUN = sum)
+quarter.fare.mean = quarter.fare.sum$fare.sum / quarter.passengers.sum$passengers
+quarter.fare.mean = cbind(quarter.fare.sum$Seasons, quarter.fare.mean)
+quarter.mean.table = as.data.frame(quarter.fare.mean)
+colnames(quarter.mean.table)[1] = "Seasons"
+
+
+# Time series graph
+ggplot(quarter.mean.table, aes(Seasons, quarter.fare.mean)) + geom_line() + ggtitle("Air Lines Fare Rates") + labs (x = "", y = "") + theme_grey(16) + theme(legend.title = element_blank()) + scale_x_continuous(breaks = round(seq(min(quarter.mean.table$Seasons), max(quarter.mean.table$Seasons), by = 0.5),1)) + scale_y_continuous(breaks = round(seq(min(quarter.mean.table$quarter.fare.mean), max(quarter.mean.table$quarter.fare.mean), by = 10), 1)) + theme(axis.text.x = element_text(angle = 90, hjust = 1))
+```
+
+
+
+From the overall time series plot, we can see that there are two huge drops, comparing to other small up and downs. One is from first quarter of year 2000 to fourth quarter of year 2001, and another is from third quarter of year 2008 to second quarter of 2009.  We further drew the time series plot faceting by year and faceting by quarter, to see more details into the seasonal effect. However, the effect is very random and is not so clear. 
+
+
+```{r,fig.height= 10, fig.width= 10}
+# Facet by year
+quarter.mean.table$Year = as.integer(quarter.mean.table$Seasons)
+ggplot(quarter.mean.table, aes(Seasons, quarter.fare.mean)) + 
+  geom_line() + 
+  ggtitle("Air Lines Fare Rates (facet by year)") + 
+  labs (x = "", y = "") + 
+  theme_grey(16) + 
+  theme(legend.title = element_blank()) + 
+  facet_wrap(~Year, scales = 'free')
+```
+
+```{r}
+# Facet by quarter
+quarter.mean.table$Quarter = 0
+for (i in 1:87) {
+  quarter.mean.table$Quarter[i] = i %% 4
+  if (quarter.mean.table$Quarter[i] == 0) {
+    quarter.mean.table$Quarter[i] = 4
+  }
+}
+ggplot(quarter.mean.table, aes(Year, quarter.fare.mean)) + geom_line() + ggtitle("Air Lines Fare Rates (facet by quarter)") + labs (x = "", y = "") + theme_grey(16) + theme(legend.title = element_blank()) + facet_wrap(~Quarter, scales = 'free_x')
+
+
+
+```
+
+**Passenger flow volume**
+
+
+Third, we want to see if passenger flow volume is another factor affecting air ticket price.
+
+```{r}
+ggplot(df, aes(passengers, fare)) + 
+  geom_point(alpha = 0.1, col = "#00660030")
+```
+
+
+There is an obvious dense part at the lower left corner of the plot. The dense part has kind of a triangular shape. We can see at the lowest part of the triangle, there is a upward trend in fare when number of passengers goes from 0 to 7000. There is also a downward curve on the top side of the triangular shape. This indicates that when number of passengers is low, the variance of fare is big. As number of passengers increases, the variance of fare decreases. Also, the empty part at the top right corner indicates that when there was high passengers flow volume, there was no high fare.
+
+```{r}
+# Only draw graph with passengers flow from 0 to 10000 and add contour lines
+df2 = df[df$passengers < 3000,]
+ggplot(df2, aes(passengers, fare)) + 
+  geom_point(alpha = 0.1, col = "#00660030") +
+  geom_density_2d(color = "yellow") +
+  ggtitle("Passenger flow volume v.s. Air ticket price") +
+  xlab("Passenger flow / airline")+
+  ylab("Price ($) ")
+```
+
+
+
+Since the dense part contains so many points, we decided to add some contour lines only on part of graph with passengers flow from 0 to 3000. We can see the most concentrated part is at when passengers equals 200. But with above few evidence, we cannot conclude there was a clear correlation between passengers’ flow volume and air line fare overall.
+
+**Low-cost airlines**
+
+Fourthly, we want to investigate if the existence of competition from low-cost airlines affect ticket prices or not. 
+
+To begin with, we would like to have a definition of "low-cost airlines". We used International Civil Aviation Organization(ICAO)'s List of Low-Cost-Carriers(LCCs) table since this table had list of all low-cost airlines arounds the world based on ICAP definition. This table can be accessed using the following link: https://www.icao.int/sustainability/Documents/LCC-List.pdf.
+
+We first did a scatter plot and color each circle red(having low-cost competitors) or blue(no low-cost competitors).
+
+```{r}
+table1 = read.csv("table1_2(ordered).csv")
+
+carrier_lg_unique = unique(table1$carrier_lg)
+carrier_low_unique = unique(table1$carrier_low)
+
+#carrier_unique = union(carrier_lg_unique, carrier_low_unique)
+
+#https://www.icao.int/sustainability/Documents/LCC-List.pdf
+carrier_unique_LC = c("ZA", "WV", "FL", "G4", "TZ", "C6", "W9", "F8", "F9", "YV", "HQ", "DH", "B6", "SG", "KP", 
+                      "ML", "YX", "N7", "NY", "PS", "PE", "P9", "QQ", "RS", "SX", "XP", "WN", "NK", "SY", "WG",
+                      "FF", "U5", "J7", "NJ", "VC", "VX", "W7", "WS", "WR", "3J", "Z4")
+
+LC_label = sapply(table1$carrier_low, FUN = function(x){x %in% carrier_unique_LC})
+LC_color = LC_label
+LC_color[LC_color==TRUE] = "red"
+LC_color[LC_color==FALSE] = "blue"
+
+plot(table1$fare, col = alpha(LC_color, 0.2))
+```
+
+
+From the above plot, we may see that routes with low-cost competitors(red points) typically have lower fare, whereas routes without such competitors(blue points) typically have higher fare. Since our data is sorted by time from 1996 1st quarter to 2017 3rd quarter, we may also see a time related trend that there seems to be more and more routes with low-cost competitors over time. In earlier days, fares on routes with low-cost competitors are significantly lower than fares on routes without low-cost competitors. Such difference is less visible in recent years as blue and red circles tend to blend together on the right side of the scatter plot. The relationship between existence of low-cost competitors and ticket fare on the route can be better visualized using histograms. 
+
+```{r}
+table2 = table1
+table2$LC_label = as.factor(LC_label)
+ggplot(table2,aes(x=fare))+geom_histogram(bins = 30)+facet_grid(~LC_label)+theme_bw()
+```
+
+
+In the above plot, FALSE means routes without low-cost carriers and TRUE means routes with low-cost carriers. As we can see, the left histogram peaks at 200 dollars, whereas the right histogram peaks at around 160 dollars. By plotting them on the same graph and use color to show existence of low-cost competitors, we can have better comparison.
+
+
+```{r}
+ggplot(table2,aes(x=fare,group=LC_label,fill=LC_label))+
+  geom_histogram(position="dodge", bins = 35)+theme_bw()
+```
+
+
+From the plot above, we may very clearly see that the distribution of fares on routes without low-cost competitors(red) has more density on the right side compared to the distribution of fares on routes with low-cost competitors(blue), meaning routes without low-cost competitors generally have higher fares.
+
+
+**State income**
+
+Lastly, we look at the effect of state income. 
+
+For the ticket fare data table, since it only included one combination of two city (for example, if NYC to LA exists, LA to NYC will not exists in the table), we duplicate the rows and for the duplicate we swapped the state 1 and state 2 in the table so that all states would be counted for the flight routes they were involved. Then we grouped the data by year and state, calculated the weighted average fare and joined it with income by state table to get the data which contains year, state, income and average fare for the ticket from/to the state.
+
+Here we want to visualize the relationship between average fare and state income in each year. We had state income data from 2006 to 2016, and this was the time period under investigation in this part. For each year, we grouped the data by states. We calculated the weighted average air fare for each state and plotted against that year’s state income, as shown in the following graph:
+
+
+```{r}
+state_income_fare <- read.csv("data_double.csv")
+ggplot(state_income_fare, aes(x=income, y=fare)) +
+  geom_point() +
+  facet_wrap(~year, scales="free")
+```
+
+
+We notice that WY is an outlier and have extremely higher ticket price than others, but except this, we cannot find other obvious patterns. To quantitatively show the relationship between fare and state income, we calculate the correlation between those two factors for each year.
+
+
+```{r}
+func <- function(state_income_fare)
+{
+return(data.frame(COR = cor(state_income_fare$income, state_income_fare$fare)))
+}
+
+x = ddply(state_income_fare, .(year), func)
+plot(x)
+```
+
+As the plot shows, we can see that all the correlations are near zero, which indicates that state income does not affect the flight fare.
+
+
+
+## Executive Summary
+
+Our group analyzed five potential influencing factors of air ticket price for domestic air routes in United States. The factors we analyzed were states’ income, passengers’ flow volume, seasonal effect, commercial metropolitan area, and low-cost airlines.
+   
+First we looked at air ticket price between cities with high GDP level / commercial metropolitan area and argued whether the price would be higher or lower in these cities comparing to low GDP area. Our conclusion is that flight fares between cities with high GDP level tend to be more extreme (extremely low or extremely high), where flight fares between cities with low GDP level tend to lie around average of the distribution.
+
+Next we discussed whether there was a seasonal effect, meaning that whether air line fares of some certain quarters were higher or lower than other quarters. From the time-series plot, although there were some small ups and downs, the pattern was too random to conclude that there was a certainly a seasonal effect.
+
+```{r,fig.height= 5, fig.width= 9}
+suffix = c(rep(c("st", "nd", "rd", "th"), 21), c("st", "nd", "rd"))
+Year_Quarter = paste(quarter.mean.table$Year, "-", quarter.mean.table$Quarter, suffix, sep = "")
+
+quarter.mean.table$Year_Quarter = Year_Quarter
+
+ggplot(quarter.mean.table, aes(x = Year_Quarter, y = quarter.fare.mean, group = 1)) + geom_line() + ggtitle("Time Series of Air Lines Price") + labs(x = "Quarter", y = "Price($)") + theme_grey(16) + theme(legend.title = element_blank()) + theme(axis.text.x = element_text(angle = 45, hjust = 1, size = 12)) + scale_x_discrete(breaks = quarter.mean.table$Year_Quarter[seq(1, length(quarter.mean.table$Year_Quarter), 2)])
+
+```
+
+
+Then, we discussed if passenger flow volume was another factor affecting air ticket price. Our conclusion is that when number of passengers is low, the range of fare is big. As number of passengers increases, range of fare decreases. Moreover, when there was high passengers flow volume, there was no high fare.
+
+
+```{r}
+df2 = df[df$passengers < 3000,]
+ggplot(df2, aes(passengers, fare)) + 
+  geom_point(alpha = 0.1, col = "#00660030") +
+  geom_density_2d(color = "yellow") +
+  ggtitle("Passenger flow volume v.s. Air ticket price") +
+  xlab("Passenger flow / airline")+
+  ylab("Price ($) ")
+```
+
+
+Fourthly, we would like to investigate if the existence of competition from low-cost airlines affect ticket prices or not. It is clear that routes with low-cost competitors have relatively lower prices comparing to routes without low-cost competitors.
+
+```{r}
+LowCost.competition = LC_label
+LowCost.competition[LowCost.competition==TRUE] = "Exist"
+LowCost.competition[LowCost.competition==FALSE] = "Do not Exist"
+
+table2 = table1
+table2$LC_label = as.factor(LC_label)
+table2$LowCost.competition = as.factor(LowCost.competition)
+
+ggplot(table2,aes(x=fare,group=LowCost.competition,fill=LowCost.competition))+
+  geom_histogram(position="dodge", bins = 35)+theme_bw(16)+
+  labs(x = "Average air fare(US$)",y = "Number of observations", fill = "Low Cost Competition", title = "Effect of low cost airline competition on air fare")+
+  scale_color_viridis(discrete = TRUE)
+
+```
+
+Lastly, we looked at the effect of state income. We didn’t find any apparent correlation between state income and flight fare.
+
+## Interactive Component
+Click the link below to see interactive:
+
+
+http://bl.ocks.org/yl3786/6d11deb8349e0d2ccea5ebddaf91e3f0
+
+
+(Recommend to use Chrome browser)
+
+---
+
+The code for flight animation is based on
+https://bl.ocks.org/bradoyler/d2725b17d38239e7de49c39ebdeae94f
+Author: brad oyler https://github.com/bradoyler
+
+
+The code for dropdown selector is based on 
+http://bl.ocks.org/jhubley/17aa30fd98eb0cc7072f
+Author: Jill https://github.com/jhubley
+
+
+
+## Conclusion
+
+Recall that our goal of this project is to analyze potential influencing factors of airfare on domestic routes in the United States. By enumerating some potential factors and analyse each of them using data from different sources, we have reached the above conclusion that factors such as GDP level and competition from low-cost airlines might affect the average airfare, factors like passenger flow might affect the variance of air ticket prices, and things like seasonality and average state income do not seem to affect ticket prices much. 
+
+It is important to point out that we are not able to establish CAUSATION from just the visualization process we did in this project. This is why we use phrases like “may influence” and “seem to affect”. In order to establish causation, more formal analysis and experiments need to be done.
+
+Due to the time constraint of this project, there were many other things we could not try. For instance, the list of potential factors we have investigated was obviously not an inclusive one, and there were many other potential factors to analyse. In addition, it is possible that multiple factors interact with each other, and jointly influence airfare. Had this project been continued later, we would had time to investigate more potential factors and the joint influence of factors. 
+
+The exploratory analysis and visualization gives us an impressive picture about our data, and can give us a direction when we incorporate more sophisticated models and tools, such as statistical inference and machine learning. By combining the results from this project with these advanced tools, we expect to obtain more valuable information, or create an useful tool like airfare predictor in the future. 
+
+
+
+
+##References
+
+Bureau of Transportation Statistics, https://www.bts.gov/topics/airlines-and-airports.
+
+US Government’s open data, https://catalog.data.gov/dataset.
+
+Transportation.gov website, https://www.transportation.gov/policy/aviation-policy/domestic-airline-consumer-airfare-report.
+
+U.S. Census Bureau, American Community Survey from 2006 to 2016, https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?src=bkmk.
+
+International Civil Aviation Organization(ICAO)'s List of Low-Cost-Carriers(LCCs) table, https://www.icao.int/sustainability/Documents/LCC-List.pdf.
+
+Brad Oyler, US Flight animation (svg), https://bl.ocks.org/bradoyler/d2725b17d38239e7de49c39ebdeae94f.
+
+Jill, line chart with dropdown selector,
+http://bl.ocks.org/jhubley/17aa30fd98eb0cc7072f.

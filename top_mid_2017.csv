@@ -1,0 +1,81 @@
+﻿Year,city_1,city_2,city,avg(avg_fare),fare,cate
+2017,Atlanta,Boston,Atlanta-Boston,164.666667,164,High
+2017,Atlanta,Chicago,Atlanta-Chicago,150.666667,150,High
+2017,Atlanta,Dallas,Atlanta-Dallas,167.666667,167,High
+2017,Atlanta,Houston,Atlanta-Houston,170.333333,170,High
+2017,Atlanta,Las Vegas,Atlanta-Las Vegas,216,216,High
+2017,Atlanta,New York City,Atlanta-New York City,204.666667,204,High
+2017,Atlanta,Philadelphia,Atlanta-Philadelphia,167.333333,167,High
+2017,Atlanta,San Francisco,Atlanta-San Francisco,315.333333,315,High
+2017,Atlanta,Washington,Atlanta-Washington,168.666667,168,High
+2017,Boston,Chicago,Boston-Chicago,171.666667,171,High
+2017,Boston,Dallas,Boston-Dallas,215.333333,215,High
+2017,Boston,Houston,Boston-Houston,222.666667,222,High
+2017,Boston,Las Vegas,Boston-Las Vegas,255,255,High
+2017,Boston,New York City,Boston-New York City,160.666667,160,High
+2017,Boston,Philadelphia,Boston-Philadelphia,177.333333,177,High
+2017,Boston,San Francisco,Boston-San Francisco,326.333333,326,High
+2017,Boston,Washington,Boston-Washington,150,150,High
+2017,Chicago,Dallas,Chicago-Dallas,175,175,High
+2017,Chicago,Houston,Chicago-Houston,179,179,High
+2017,Chicago,Las Vegas,Chicago-Las Vegas,174,174,High
+2017,Chicago,New York City,Chicago-New York City,170.666667,170,High
+2017,Chicago,Philadelphia,Chicago-Philadelphia,231,231,High
+2017,Chicago,San Francisco,Chicago-San Francisco,231.333333,231,High
+2017,Chicago,Washington,Chicago-Washington,174.333333,174,High
+2017,Dallas/Fort Worth,Houston,Dallas/Fort Worth-Houston,199,199,High
+2017,Dallas/Fort Worth,Las Vegas,Dallas/Fort Worth-Las Vegas,170.333333,170,High
+2017,Dallas/Fort Worth,New York City,Dallas/Fort Worth-New York City,212.666667,212,High
+2017,Dallas/Fort Worth,Philadelphia,Dallas/Fort Worth-Philadelphia,227.333333,227,High
+2017,Dallas/Fort Worth,San Francisco,Dallas/Fort Worth-San Francisco,207.333333,207,High
+2017,Dallas/Fort Worth,Washington,Dallas/Fort Worth-Washington,200,200,High
+2017,Houston,Las Vegas,Houston-Las Vegas,189,189,High
+2017,Houston,New York City,Houston-New York City,277.666667,277,High
+2017,Houston,Philadelphia,Houston-Philadelphia,262.333333,262,High
+2017,Houston,San Francisco,Houston-San Francisco,310.666667,310,High
+2017,Houston,Washington,Houston-Washington,243.333333,243,High
+2017,Los Angeles,New York City,Los Angeles-New York City,374.333333,374,High
+2017,Los Angeles,Philadelphia,Los Angeles-Philadelphia,301.666667,301,High
+2017,Los Angeles,San Francisco,Los Angeles-San Francisco,133.333333,133,High
+2017,Los Angeles,Washington,Los Angeles-Washington,284.333333,284,High
+2017,New York City,San Francisco,New York City-San Francisco,351.666667,351,High
+2017,New York City,Washington,New York City-Washington,196.333333,196,High
+2017,Philadelphia,San Francisco,Philadelphia-San Francisco,371.666667,371,High
+2017,San Francisco,Washington,San Francisco-Washington,365.666667,365,High
+2017,Kansas City,Nashville,Kansas City-Nashville,211,211,Low
+2017,Las Vegas,Salt Lake City,Las Vegas-Salt Lake City,143.3333333,143,Low
+2017,Orlando,Salt Lake City,Orlando-Salt Lake City,220.6666667,220,Low
+2017,Austin,Salt Lake City,Austin-Salt Lake City,253.6666667,253,Low
+2017,Kansas City,Las Vegas,Kansas City-Las Vegas,174.3333333,174,Low
+2017,Nashville,New Orleans,Nashville-New Orleans,207.6666667,207,Low
+2017,Sacramento,Salt Lake City,Sacramento-Salt Lake City,158,158,Low
+2017,Austin,Sacramento,Austin-Sacramento,260.3333333,260,Low
+2017,Las Vegas,San Antonio,Las Vegas-San Antonio,181,181,Low
+2017,Nashville,Sacramento,Nashville-Sacramento,291.5,291,Low
+2017,Las Vegas,Sacramento,Las Vegas-Sacramento,182,182,Low
+2017,New Orleans,San Antonio,New Orleans-San Antonio,203,203,Low
+2017,Austin,Nashville,Austin-Nashville,256.6666667,256,Low
+2017,Kansas City,San Antonio,Kansas City-San Antonio,182.3333333,182,Low
+2017,Las Vegas,New Orleans,Las Vegas-New Orleans,191.3333333,191,Low
+2017,Orlando,Sacramento,Orlando-Sacramento,290,290,Low
+2017,Austin,Las Vegas,Austin-Las Vegas,178.3333333,178,Low
+2017,Salt Lake City,San Antonio,Salt Lake City-San Antonio,239.6666667,239,Low
+2017,Austin,Kansas City,Austin-Kansas City,198,198,Low
+2017,New Orleans,Orlando,New Orleans-Orlando,156.6666667,156,Low
+2017,Kansas City,Milwaukee,Kansas City-Milwaukee,199.3333333,199,Low
+2017,Las Vegas,Nashville,Las Vegas-Nashville,228.6666667,228,Low
+2017,Kansas City,Salt Lake City,Kansas City-Salt Lake City,247,247,Low
+2017,Nashville,Orlando,Nashville-Orlando,166.6666667,166,Low
+2017,Sacramento,San Antonio,Sacramento-San Antonio,264.5,264,Low
+2017,Austin,Orlando,Austin-Orlando,156,156,Low
+2017,Nashville,Salt Lake City,Nashville-Salt Lake City,289.3333333,289,Low
+2017,Las Vegas,Orlando,Las Vegas-Orlando,200.3333333,200,Low
+2017,Kansas City,Orlando,Kansas City-Orlando,168.3333333,168,Low
+2017,Kansas City,New Orleans,Kansas City-New Orleans,205.6666667,205,Low
+2017,Nashville,San Antonio,Nashville-San Antonio,235.3333333,235,Low
+2017,Las Vegas,Milwaukee,Las Vegas-Milwaukee,175.3333333,175,Low
+2017,Orlando,San Antonio,Orlando-San Antonio,230.3333333,230,Low
+2017,Austin,New Orleans,Austin-New Orleans,210,210,Low
+2017,Milwaukee,Orlando,Milwaukee-Orlando,149,149,Low
+2017,Kansas City,Sacramento,Kansas City-Sacramento,266.5,266,Low
+2017,New Orleans,Salt Lake City,New Orleans-Salt Lake City,282,282,Low
